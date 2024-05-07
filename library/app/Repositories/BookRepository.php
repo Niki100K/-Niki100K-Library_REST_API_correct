@@ -15,26 +15,26 @@ class BookRepository
 
     public function all()
     {
-        $this->model->all();
+        return $this->model->all();
     }
 
     public function findById($id)
     {
-        $this->model->findOrFail($id);
+        return $this->model->findOrFail($id);
     }
 
     public function create($data)
     {
-        $this->model->create($data);
+        return $this->model->create($data);
     }
 
     public function update($id, $data)
     {
-        $this->model->findOrFail($id, $data);
+        return $this->model->update($id, $data);
     }
 
     public function delete($id)
     {
-        $this->model->delete($id);
+        return $this->model->delete($id);
     }
 }

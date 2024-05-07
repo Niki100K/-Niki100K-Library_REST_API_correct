@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -19,7 +20,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $this->userService->all();
+        return $this->userService->all()->pluck('name', 'email');
     }
 
     /**
@@ -27,18 +28,19 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'phone' => 'required|string',
-            'email' => 'required|unique:users',
-            'password' => 'required|confirmed',
+        $validator= Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
         ]);
-    
+
+        if ($validator->fails()) {
+            return $validator->errors();
+        }
+
         $userData = $request->only(['name', 'phone', 'email', 'password']);
-    
-        $user = $this->userService->create($userData);
-    
-        return response()->json(['user' => $user], 201);
+        return $this->userService->create($userData);
     }
 
     /**
@@ -46,7 +48,12 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $this->userService->findById($id);
+        $user = $this->userService->findById($id);
+        if (!$user) {
+            return response()->json(['error' => 'User not found']);
+        }
+    
+        return response()->json($user);
     }
 
     /**
@@ -54,7 +61,25 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $this->userService->update($id, $request);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255',
+        ]);
+
+        $existingUser = $this->userService->findById($id);
+        if (!$existingUser) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        if ($request->has('email') && $request->input('email') !== $existingUser->email) {
+            $request->validate([
+                'email' => 'unique:users',
+            ]);
+        }
+
+        $userData = $request->only(['name', 'phone', 'email']);
+        return $this->userService->update($id, $userData);
     }
 
     /**
@@ -62,6 +87,12 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
+        $user = $this->userService->findById($id);
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
         $this->userService->delete($id);
+        return response()->json(['message' => 'User deleted successfully'], 200);
     }
 }

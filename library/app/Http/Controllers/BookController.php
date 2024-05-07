@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Author;
+use App\Models\User;
 use App\Services\BookService;
 use Illuminate\Http\Request;
 
@@ -19,7 +21,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        $this->bookService->all();
+        return $this->bookService->all();
     }
 
     /**
@@ -27,7 +29,27 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        $this->bookService->create($request);
+        $validatedData = $request->validate([
+            'user_id' => 'required|numeric',
+            'title' => 'required|string|max:255',
+            'author' => 'required|string',
+        ]);
+    
+        $user = User::find($validatedData['user_id']);
+    
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+    
+        $book = $user->books()->create([
+            'title' => $validatedData['title'],
+        ]);
+    
+        $author = Author::firstOrCreate(['name' => $validatedData['author']]);
+        
+        $book->authors()->attach($author);
+    
+        return response()->json(['message' => 'Book created successfully'], 201);
     }
 
     /**
@@ -35,7 +57,15 @@ class BookController extends Controller
      */
     public function show(string $id)
     {
-        $this->bookService->findById($id);
+        $book = $this->bookService->findById($id);
+        $authorNames = $book->authors()->pluck('name');
+    
+        return [
+            'book' => [
+                'title' => $book->title,
+                'author' => $authorNames,
+            ]
+        ];
     }
 
     /**
@@ -43,7 +73,27 @@ class BookController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $this->bookService->update($id, $request);
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'author' => 'required|string',
+        ]);
+    
+        $book = $this->bookService->findById($id);
+        if (!$book) {
+            return response()->json(['error' => 'Book not found'], 404);
+        }
+    
+        $userData = $request->only(['title', 'author']);
+    
+        $book->update([
+            'title' => $userData['title'],
+        ]);
+    
+        $author = Author::firstOrCreate(['name' => $userData['author']]);
+    
+        $book->authors()->sync([$author->id]);
+    
+        return response()->json(['message' => 'Book updated successfully'], 200);
     }
 
     /**
@@ -51,6 +101,13 @@ class BookController extends Controller
      */
     public function destroy(string $id)
     {
-        $this->bookService->delete($id);
+        $book = $this->bookService->findById($id);
+        if (!$book) {
+            return response()->json(['error' => 'Book not found'], 404);
+        }
+    
+        $book->delete();
+    
+        return response()->json(['message' => 'Book deleted successfully'], 200);
     }
 }

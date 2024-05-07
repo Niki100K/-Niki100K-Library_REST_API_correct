@@ -15,26 +15,26 @@ class AuthorService
 
     public function all()
     {
-        $this->authorRepository->all();
+        return $this->authorRepository->all();
     }
 
-    public function findById($id)
+    public function findById($identifier)
     {
-        $this->authorRepository->findById($id);
+        return $this->authorRepository->findById($identifier);
     }
 
     public function create($data)
     {
-        $this->authorRepository->create($data);
+        return $this->authorRepository->create($data);
     }
 
     public function update($id, $data)
     {
-        $this->authorRepository->findById($id, $data);
+        return $this->authorRepository->update($id, $data);
     }
 
     public function delete($id)
     {
-        $this->authorRepository->delete($id);
+        return $this->authorRepository->delete($id);
     }
 }

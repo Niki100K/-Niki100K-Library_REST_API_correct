@@ -15,26 +15,26 @@ class UserService
 
     public function all()
     {
-        $this->userRepository->all();
+        return $this->userRepository->all();
     }
 
     public function findById($id)
     {
-        $this->userRepository->findById($id);
+        return $this->userRepository->findById($id);
     }
 
     public function create($data)
     {
-        $this->userRepository->create($data);
+        return $this->userRepository->create($data);
     }
 
     public function update($id, $data)
     {
-        $this->userRepository->findById($id, $data);
+        return $this->userRepository->update($id, $data);
     }
 
     public function delete($id)
     {
-        $this->userRepository->delete($id);
+        return $this->userRepository->delete($id);
     }
 }

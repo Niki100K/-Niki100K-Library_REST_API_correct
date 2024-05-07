@@ -25,12 +25,12 @@ return new class extends Migration
 
         Schema::create('author_book', function (Blueprint $table) {
             $table->foreignId('author_id')->constrained();
-            $table->foreignId('book_id')->constrained();
+            $table->foreignId('book_id')->constrained()->onDelete('cascade');
         });
 
         Schema::create('book_user', function (Blueprint $table) {
-            $table->foreignId('book_id')->constrained();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('book_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
         });
     }
 

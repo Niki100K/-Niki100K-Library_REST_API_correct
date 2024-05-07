@@ -19,7 +19,7 @@ class AuthorController extends Controller
      */
     public function index()
     {
-        $this->authorService->all();
+        return $this->authorService->all()->pluck('name');
     }
 
     /**
@@ -27,15 +27,22 @@ class AuthorController extends Controller
      */
     public function store(Request $request)
     {
-        $this->authorService->create($request);
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+    
+        $authorData = $request->only(['name']);
+
+        return $this->authorService->create($authorData);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $identifier)
     {
-        $this->authorService->findById($id);
+        return $this->authorService->findById($identifier);
+
     }
 
     /**
@@ -43,7 +50,13 @@ class AuthorController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $this->authorService->update($id, $request);
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $data = $request->only(['name']);
+
+        return $this->authorService->update($id, $data);
     }
 
     /**
@@ -51,6 +64,7 @@ class AuthorController extends Controller
      */
     public function destroy(string $id)
     {
-        $this->authorService->delete($id);
+
+        return $this->authorService->delete($id);
     }
 }

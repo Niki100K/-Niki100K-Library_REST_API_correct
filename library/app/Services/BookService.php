@@ -15,26 +15,26 @@ class BookService
 
     public function all()
     {
-        $this->bookRepository->all();
+        return $this->bookRepository->all();
     }
 
     public function findById($id)
     {
-        $this->bookRepository->findById($id);
+        return $this->bookRepository->findById($id);
     }
 
     public function create($data)
     {
-        $this->bookRepository->create($data);
+        return $this->bookRepository->create($data);
     }
 
     public function update($id, $data)
     {
-        $this->bookRepository->findById($id, $data);
+        return $this->bookRepository->update($id, $data);
     }
 
     public function delete($id)
     {
-        $this->bookRepository->delete($id);
+        return $this->bookRepository->delete($id);
     }
 }

@@ -15,26 +15,30 @@ class UserRepository
 
     public function all()
     {
-        $this->model->all();
+        return $this->model->all();
     }
 
     public function findById($id)
     {
-        $this->model->findOrFail($id);
+        return $this->model->findOrFail($id);
     }
 
     public function create($data)
     {
-        $this->model->create($data);
+        return $this->model->create($data);
     }
 
     public function update($id, $data)
     {
-        $this->model->findOrFail($id, $data);
+        $user = $this->model->findOrFail($id);
+        $user->update($data);
+        return $user;
     }
 
     public function delete($id)
     {
-        $this->model->delete($id);
+        $user = $this->model->findOrFail($id);
+        $user->delete();
+        return response()->json(['message' => 'User deleted successfully']);
     }
 }
